@@ -4,7 +4,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /* 
-  Колекція, в якій зберігатися документ баз даних MongoDB, що представляє сутність запису з таблиці publicsafety.
+  Колекція, в якій зберігатися документ баз даних MongoDB, 
+  що представляє сутність запису з таблиці publicsafety.
 */
 @Document(collection = "publicsafety")
 public class Publicsafety {
@@ -21,7 +22,9 @@ public class Publicsafety {
     private String observationCenterAddress;
     private String observationCenterPhone;
 
-    public Publicsafety(String policeOfficer, String surveillanceOperator, String citizen, String incidentDate, String cameraLocations, String incidentType, String requestStatus, int policeExperienceYears, String observationCenterAddress, String observationCenterPhone) {
+    public Publicsafety(String policeOfficer, String surveillanceOperator, String citizen, String incidentDate, 
+        String cameraLocations, String incidentType, String requestStatus, int policeExperienceYears, 
+        String observationCenterAddress, String observationCenterPhone) {
         this.policeOfficer = policeOfficer;
         this.surveillanceOperator = surveillanceOperator;
         this.citizen = citizen;
