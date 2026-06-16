@@ -37,6 +37,51 @@ public class Publicsafety {
         this.observationCenterPhone = observationCenterPhone;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public String getPoliceOfficer() {
+        return policeOfficer;
+    }
+
+    public String getSurveillanceOperator() {
+        return surveillanceOperator;
+    }
+
+    public String getCitizen() {
+        return citizen;
+    }
+
+    public String getIncidentDate() {
+        return incidentDate;
+    }
+
+    public String getCameraLocations() {
+        return cameraLocations;
+    }
+
+    public String getIncidentType() {
+        return incidentType;
+    }
+
+    public String getRequestStatus() {
+        return requestStatus;
+    }
+
+    public int getPoliceExperienceYears() {
+        return policeExperienceYears;
+    }
+
+    public String getObservationCenterAddress() {
+        return observationCenterAddress;
+    }
+
+    public String getObservationCenterPhone() {
+        return observationCenterPhone;
+    }
+
+    @Override
     public String toString() {
         return "Publicsafety {" +
                 " id=\"" + id + "\"\n" +

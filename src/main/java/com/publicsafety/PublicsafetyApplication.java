@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import java.nio.charset.StandardCharsets;
-
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -41,6 +41,14 @@ public class PublicsafetyApplication implements CommandLineRunner {
     @Autowired
     private PublicsafetyRepository publicsafetyRepository;
 
+    public void setPublicsafetyRepository(PublicsafetyRepository publicsafetyRepository) {
+        this.publicsafetyRepository = publicsafetyRepository;
+    }
+
+    InputStream getCsvInputStream() {
+        return getClass().getClassLoader().getResourceAsStream("publicsafety.csv");
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(PublicsafetyApplication.class, args);
     }
@@ -69,48 +77,40 @@ public class PublicsafetyApplication implements CommandLineRunner {
                     dropAllPublicsafety();
                     break;
                 case 4:
-                    System.exit(0);
-                    break;
+                    return;
                 default:
                     System.out.println("Номер команди некоректний. Спробуй ще.");
             }
         }
     }
 
-    private void addPublicsafetyFromCsv() {
-        try (CSVReader reader = new CSVReader(new InputStreamReader
-            (getClass().getClassLoader().getResourceAsStream("publicsafety.csv"),
-        StandardCharsets.UTF_8))) {
-            List<String[]> records = reader.readAll();
-            
-            records.remove(0); // Видалити перший рядок з назвами стовпців
+    public boolean runCommand(int choice) {
+        switch (choice) {
+            case 1:
+                addPublicsafetyFromCsv();
+                return true;
+            case 2:
+                viewAllPublicsafety();
+                return true;
+            case 3:
+                dropAllPublicsafety();
+                return true;
+            case 4:
+                return false;
+            default:
+                System.out.println("Номер команди некоректний. Спробуй ще.");
+                return true;
+        }
+    }
 
-            List<Publicsafety> publicsafetyList = new ArrayList<>();
-            int rowNumber = 1;
-            for (String[] record : records) {
-                rowNumber++;
-                if (record.length != 10) {
-                    System.out.println("Пропускаю рядок " + rowNumber + ", очікувалося 10 стовпців, отримано " 
-                    + record.length + ".");
-                    continue;
-                }
-
-                Publicsafety publicsafety = new Publicsafety(
-                    record[0], // policeOfficer
-                    record[1], // surveillanceOperator
-                    record[2], // citizen
-                    record[3], // incidentDate
-                    record[4], // cameraLocations
-                    record[5], // incidentType
-                    record[6], // requestStatus
-                    parseIntegerField(record[7], rowNumber), // policeExperienceYears
-                    record[8], // observationCenterAddress
-                    record[9]  // observationCenterPhone
-                );
-
-                publicsafetyList.add(publicsafety);
+    void addPublicsafetyFromCsv() {
+        try (InputStream inputStream = getCsvInputStream()) {
+            if (inputStream == null) {
+                System.out.println("Не знайдено файл publicsafety.csv у classpath.");
+                return;
             }
-            
+
+            List<Publicsafety> publicsafetyList = parsePublicsafetyCsv(inputStream);
             publicsafetyRepository.saveAll(publicsafetyList);
             System.out.println(publicsafetyList.size() + " документів publicsafety завантажено з CSV.");
         } catch (Exception e) {
@@ -119,7 +119,44 @@ public class PublicsafetyApplication implements CommandLineRunner {
         }
     }
 
-    private void viewAllPublicsafety() {
+    List<Publicsafety> parsePublicsafetyCsv(InputStream inputStream) throws Exception {
+        try (CSVReader reader = new CSVReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            List<String[]> records = reader.readAll();
+            if (!records.isEmpty()) {
+                records.remove(0); // Видалити перший рядок з назвами стовпців
+            }
+
+            List<Publicsafety> publicsafetyList = new ArrayList<>();
+            int rowNumber = 1;
+            for (String[] record : records) {
+                rowNumber++;
+                if (record.length != 10) {
+                    System.out.println("Пропускаю рядок " + rowNumber + ", очікувалося 10 стовпців, отримано "
+                            + record.length + ".");
+                    continue;
+                }
+
+                Publicsafety publicsafety = new Publicsafety(
+                        record[0], // policeOfficer
+                        record[1], // surveillanceOperator
+                        record[2], // citizen
+                        record[3], // incidentDate
+                        record[4], // cameraLocations
+                        record[5], // incidentType
+                        record[6], // requestStatus
+                        parseIntegerField(record[7], rowNumber), // policeExperienceYears
+                        record[8], // observationCenterAddress
+                        record[9]  // observationCenterPhone
+                );
+
+                publicsafetyList.add(publicsafety);
+            }
+
+            return publicsafetyList;
+        }
+    }
+
+    void viewAllPublicsafety() {
         List<Publicsafety> publicsafetyList = publicsafetyRepository.findAll();
         if (publicsafetyList.isEmpty()) {
             System.out.println("Документи publicsafety не знайдено.");
@@ -129,13 +166,13 @@ public class PublicsafetyApplication implements CommandLineRunner {
         }
     }
 
-    private void dropAllPublicsafety() {
+    void dropAllPublicsafety() {
         publicsafetyRepository.deleteAll();
         System.out.println("Записи publicsafety видалено.");
     }
 
-    private int parseIntegerField(String value, int rowNumber) {
-        if (value == null || value.isBlank()) {
+    int parseIntegerField(String value, int rowNumber) {
+        if (value == null || value.trim().isEmpty()) {
             return 0;
         }
 
