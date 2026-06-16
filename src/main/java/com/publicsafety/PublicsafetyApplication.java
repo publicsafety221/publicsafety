@@ -78,7 +78,8 @@ public class PublicsafetyApplication implements CommandLineRunner {
     }
 
     private void addPublicsafetyFromCsv() {
-        try (CSVReader reader = new CSVReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("publicsafety.csv"),
+        try (CSVReader reader = new CSVReader(new InputStreamReader
+            (getClass().getClassLoader().getResourceAsStream("publicsafety.csv"),
         StandardCharsets.UTF_8))) {
             List<String[]> records = reader.readAll();
             
@@ -89,7 +90,8 @@ public class PublicsafetyApplication implements CommandLineRunner {
             for (String[] record : records) {
                 rowNumber++;
                 if (record.length != 10) {
-                    System.out.println("Пропускаю рядок " + rowNumber + ", очікувалося 10 стовпців, отримано " + record.length + ".");
+                    System.out.println("Пропускаю рядок " + rowNumber + ", очікувалося 10 стовпців, отримано " 
+                    + record.length + ".");
                     continue;
                 }
 
@@ -140,7 +142,8 @@ public class PublicsafetyApplication implements CommandLineRunner {
         try {
             return Integer.parseInt(value.trim());
         } catch (NumberFormatException e) {
-            System.out.println("Попередження: не вдалося розпарсити число в колонці policeExperienceYears на рядку " + rowNumber + ". Значення: '" + value + "'. Використано 0.");
+            System.out.println("Попередження: не вдалося розпарсити число в колонці policeExperienceYears на рядку "
+             + rowNumber + ". Значення: '" + value + "'. Використано 0.");
             return 0;
         }
     }
